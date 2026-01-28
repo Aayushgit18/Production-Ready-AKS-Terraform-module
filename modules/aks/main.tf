@@ -32,7 +32,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     enable_auto_scaling          = true
     min_count                    = 1
     max_count                    = 2
-    zones                        = ["1", "2", "3"]
+    # zones                        = ["1", "2", "3"]
     only_critical_addons_enabled = true
   }
 
@@ -53,7 +53,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   enable_auto_scaling   = true
   min_count             = 1
   max_count             = 2
-  zones                 = ["1", "2", "3"]
+  # zones                 = ["1", "2", "3"]
   mode                  = "User"
 }
 
