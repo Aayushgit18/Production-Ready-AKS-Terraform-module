@@ -31,7 +31,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     vnet_subnet_id               = var.system_subnet_id
     enable_auto_scaling          = true
     min_count                    = 1
-    max_count                    = 3
+    max_count                    = 2
     zones                        = ["1", "2", "3"]
     only_critical_addons_enabled = true
   }
@@ -52,7 +52,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   vnet_subnet_id        = var.user_subnet_id
   enable_auto_scaling   = true
   min_count             = 1
-  max_count             = 5
+  max_count             = 2
   zones                 = ["1", "2", "3"]
   mode                  = "User"
 }
