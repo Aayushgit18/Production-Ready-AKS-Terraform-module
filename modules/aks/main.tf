@@ -48,7 +48,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 resource "azurerm_kubernetes_cluster_node_pool" "user" {
   name                  = "user"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
-  vm_size               = "Standard_D4s_v5"
+  vm_size               = "Standard_B1s"
   vnet_subnet_id        = var.user_subnet_id
   enable_auto_scaling   = true
   min_count             = 1
