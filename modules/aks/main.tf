@@ -27,7 +27,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   default_node_pool {
     name                         = "system"
-    vm_size                      = "Standard_D4s_v5"
+    vm_size                      = "Standard_B1s"
     vnet_subnet_id               = var.system_subnet_id
     enable_auto_scaling          = true
     min_count                    = 1
