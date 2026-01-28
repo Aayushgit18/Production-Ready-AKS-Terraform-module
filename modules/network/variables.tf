@@ -1,6 +1,7 @@
-variable "vnet_name" {}
-variable "vnet_cidr" {}
-variable "location" {}
-variable "rg_name" {}
-variable "system_subnet_cidr" {}
-variable "user_subnet_cidr" {}
+variable "rg_name" { type = string }
+variable "location" { type = string }
+variable "vnet_name" { type = string }
+variable "address_space" { type = list(string) }
+variable "system_subnet_cidr" { type = string }
+variable "user_subnet_cidr" { type = string }
+variable "tags" { type = map(string) }

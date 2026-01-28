@@ -1,11 +1,9 @@
-variable "location" {}
-variable "rg_name" {}
-variable "aks_name" {}
-variable "vnet_name" {}
-variable "vnet_cidr" {}
-variable "system_subnet_cidr" {}
-variable "user_subnet_cidr" {}
-variable "acr_name" {}
-variable "log_name" {}
-variable "user_vm_size" {}
-variable "admin_group_object_id" {}
+variable "location" { type = string }
+variable "rg_name" { type = string }
+variable "aks_name" { type = string }
+variable "acr_name" { type = string }
+variable "vnet_name" { type = string }
+variable "vnet_cidr" { type = list(string) }
+variable "system_subnet_cidr" { type = string }
+variable "user_subnet_cidr" { type = string }
+variable "tags" { type = map(string) }

@@ -1,9 +1,8 @@
-variable "aks_name" {}
-variable "location" {}
-variable "rg_name" {}
-variable "system_subnet_id" {}
-variable "user_subnet_id" {}
-variable "log_analytics_id" {}
-variable "user_vm_size" {}
-variable "acr_id" {}
-variable "admin_group_object_id" {}
+variable "rg_name" { type = string }
+variable "location" { type = string }
+variable "name" { type = string }
+variable "system_subnet_id" { type = string }
+variable "user_subnet_id" { type = string }
+variable "law_id" { type = string }
+variable "acr_id" { type = string }
+variable "tags" { type = map(string) }

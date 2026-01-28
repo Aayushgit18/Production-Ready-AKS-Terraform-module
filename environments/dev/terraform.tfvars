@@ -1,11 +1,12 @@
-location              = "eastus"
-rg_name               = "rg-aks-dev"
-aks_name              = "aks-dev"
-vnet_name             = "aks-dev-vnet"
-vnet_cidr             = "10.0.0.0/16"
-system_subnet_cidr    = "10.0.1.0/24"
-user_subnet_cidr      = "10.0.2.0/24"
-acr_name              = "aksdevacr12345"
-log_name              = "aks-dev-law"
-user_vm_size          = "Standard_DS2_v2"
-admin_group_object_id = "4a564de4-a49a-46bd-9205-3b7ba10c540d"
+location            = "eastus"
+rg_name             = "aks-dev-rg"
+aks_name            = "aks-dev"
+acr_name            = "acrdev12345"
+vnet_name           = "aks-dev-vnet"
+vnet_cidr           = ["10.0.0.0/8"]
+system_subnet_cidr  = "10.1.0.0/16"
+user_subnet_cidr    = "10.2.0.0/16"
+tags = {
+  environment = "dev"
+  owner       = "platform"
+}
