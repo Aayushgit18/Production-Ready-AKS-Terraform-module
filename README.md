@@ -104,7 +104,7 @@ az account set --subscription <subscription-id>
 
 Terraform automatically uses the **currently selected Azure subscription**.
 
-✅ This allows:
+ This allows:
 
 * Same code across subscriptions
 * No hard-coded secrets
@@ -232,6 +232,6 @@ cd environments/prod
 terraform destroy
 ```
 
-⚠️ **Do NOT destroy `bootstrap` unless backend is no longer needed.**
+ **Do NOT destroy `bootstrap` unless backend is no longer needed.**
 
 ---
