@@ -1,6 +1,4 @@
-############################
 # AKS Outputs
-############################
 
 output "aks_cluster_name" {
   description = "AKS cluster name"
@@ -23,9 +21,7 @@ output "aks_oidc_issuer_url" {
   value       = module.aks.oidc_issuer_url
 }
 
-############################
 # ACR Outputs
-############################
 
 output "acr_id" {
   description = "Azure Container Registry ID"
@@ -37,18 +33,15 @@ output "acr_login_server" {
   value       = module.acr.login_server
 }
 
-############################
 # Monitoring Outputs
-############################
 
 output "log_analytics_workspace_id" {
   description = "Log Analytics Workspace ID"
   value       = module.monitoring.law_id
 }
 
-############################
 # Network Outputs
-############################
+
 
 output "vnet_name" {
   description = "Virtual Network name"
@@ -64,6 +57,7 @@ output "user_subnet_id" {
   description = "AKS user node subnet ID"
   value       = module.network.user_subnet_id
 }
+
 
 
 
