@@ -1,6 +1,6 @@
 provider "azurerm" {
   features {}
-  subscription_id = "XXXXXXXXXXXX"
+  subscription_id = "subscription_id of your account"
 
 }
 
