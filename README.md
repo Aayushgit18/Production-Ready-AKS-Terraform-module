@@ -1,26 +1,25 @@
-
 # Production-Ready AKS Infrastructure using Terraform
 
 ## 1. Overview
 
-This repository provisions a **production-ready Azure Kubernetes Service (AKS)** infrastructure using **Terraform**, following **enterprise DevOps and security best practices**.
+This repository provisions a **production-ready Azure Kubernetes Service (AKS)** platform using **Terraform**, following **modular infrastructure-as-code principles** and **enterprise DevOps best practices**.
 
-It supports **multiple environments (dev & prod)** with a **shared backend**, modular Terraform design, and secure integrations.
+It supports **multiple environments (dev & prod)** with a **shared remote Terraform backend**, reusable modules, and secure identity-based access.
 
 ---
 
 ## 2. Key Features
 
 * Modular Terraform architecture
-* Remote backend with Azure Blob Storage
+* Remote backend using Azure Blob Storage
 * Separate **dev** and **prod** environments
-* Secure networking with **Azure CNI**
-* **Private AKS cluster**
+* Azure CNI networking
+* Public AKS cluster (simplified access)
 * Azure AD (Entra ID) RBAC
 * Azure Container Registry (ACR) integration
-* **Azure Key Vault with RBAC**
-* Monitoring with Log Analytics
-* **Workload Identity (OIDC) enabled**
+* Azure Key Vault (RBAC enabled)
+* Centralized monitoring using Log Analytics
+* OIDC + AKS Workload Identity enabled
 * No secrets stored in Terraform code
 
 ---
@@ -29,18 +28,18 @@ It supports **multiple environments (dev & prod)** with a **shared backend**, mo
 
 ```
 .
-├── bootstrap/                # ONE-TIME infra (Terraform backend)
+├── bootstrap/                # One-time backend infrastructure
 ├── environments/
-│   ├── dev/                  # Dev environment
-│   └── prod/                 # Prod environment
+│   ├── dev/                  # Development environment
+│   └── prod/                 # Production environment
 ├── modules/                  # Reusable Terraform modules
-│   ├── aks/                  # AKS cluster & node pools
+│   ├── aks/                  # AKS cluster and node pools
 │   ├── acr/                  # Azure Container Registry
-│   ├── network/              # VNet & subnets
-│   ├── monitoring/           # Log Analytics
+│   ├── network/              # Virtual network and subnets
+│   ├── monitoring/           # Log Analytics Workspace
 │   ├── key-vault/            # Azure Key Vault (RBAC)
 │   └── resource-group/       # Resource Group
-├── versions.tf               # Provider + Terraform version
+├── versions.tf               # Terraform & provider versions
 └── README.md
 ```
 
@@ -48,16 +47,16 @@ It supports **multiple environments (dev & prod)** with a **shared backend**, mo
 
 ## 4. Prerequisites
 
-### Tools Required
+### Required Tools
 
-| Tool      | Minimum Version |
-| --------- | --------------- |
-| Terraform | >= 1.4.0        |
-| Azure CLI | Latest          |
-| Git       | Latest          |
-| kubectl   | Latest          |
+| Tool      | Version  |
+| --------- | -------- |
+| Terraform | >= 1.4.0 |
+| Azure CLI | Latest   |
+| Git       | Latest   |
+| kubectl   | Latest   |
 
-Verify installation:
+Verify:
 
 ```bash
 terraform -v
@@ -67,65 +66,56 @@ kubectl version --client
 
 ---
 
-### Azure Permissions Required
+### Azure Permissions
 
 The Azure account must have:
 
 * **Contributor** on the subscription
-* **User Access Administrator** (required for role assignments like ACR Pull & Key Vault RBAC)
+* **User Access Administrator** (required for RBAC role assignments)
 
 ---
 
-## 5. Important Design Decisions (Must Read)
+## 5. Design Decisions (Important)
 
-### Why `subscription_id` exists ONLY in `bootstrap`
+### Why `subscription_id` exists only in `bootstrap`
 
-The `bootstrap` folder creates the **Terraform remote backend** (Storage Account + Blob Container).
+The `bootstrap` folder creates the **Terraform remote backend** (storage account + container).
 
 Terraform backends:
 
-* ❌ Cannot use variables
-* ❌ Cannot depend on environment configuration
-* ✅ Must use static values
+* Cannot use variables
+* Must use static values
 
-Therefore:
+Therefore, the provider inside `bootstrap` explicitly defines:
 
 ```hcl
-provider "azurerm" {
-  subscription_id = "<your-subscription-id>"
-}
+subscription_id = "<subscription-id>"
 ```
-
-is required **ONLY inside `bootstrap/`**.
 
 ---
 
-### Why dev & prod do NOT define `subscription_id`
+### Why dev & prod do not define `subscription_id`
 
-`environments/dev` and `environments/prod` rely on Azure CLI authentication:
+Environment deployments rely on Azure CLI authentication:
 
 ```bash
 az login
 az account set --subscription <subscription-id>
 ```
 
-Terraform automatically uses the **active Azure subscription**.
+Terraform automatically uses the active subscription, enabling:
 
-This enables:
-
-* Same code across environments
-* No hard-coded secrets
-* Easy multi-subscription support
+* Environment portability
+* No hardcoded credentials
+* Multi-subscription support
 
 ---
 
-## 6. Step-by-Step Deployment Guide
+## 6. Deployment Steps
 
 ---
 
-### STEP 1 — Create Terraform Backend (ONE TIME ONLY)
-
-Navigate to `bootstrap/`:
+### Step 1 — Bootstrap Terraform Backend (One Time)
 
 ```bash
 cd bootstrap
@@ -133,24 +123,15 @@ terraform init
 terraform apply
 ```
 
-This creates:
+Creates:
 
-* Resource Group
-* Storage Account
-* Blob Container for Terraform state
-
-⚠️ **Do NOT delete this unless the entire platform is retired.**
+* Resource group
+* Storage account
+* Blob container for Terraform state
 
 ---
 
-### STEP 2 — Deploy DEV Environment
-
-Navigate to `environments/dev/`
-
-#### Files you MUST review/edit:
-
-* `backend.tf` → storage account name
-* `terraform.tfvars` → resource names, CIDRs, tenant ID
+### Step 2 — Deploy DEV Environment
 
 ```bash
 cd environments/dev
@@ -159,16 +140,14 @@ terraform plan
 terraform apply
 ```
 
----
-
-### STEP 3 — Deploy PROD Environment
-
-Navigate to `environments/prod/`
-
-#### Files you MUST review/edit:
+Files to review:
 
 * `backend.tf`
 * `terraform.tfvars`
+
+---
+
+### Step 3 — Deploy PROD Environment
 
 ```bash
 cd environments/prod
@@ -177,36 +156,49 @@ terraform plan
 terraform apply
 ```
 
+Files to review:
+
+* `backend.tf`
+* `terraform.tfvars`
+
 ---
 
-## 7. Azure Key Vault Integration
+## 7. AKS Configuration
 
-This platform includes **Azure Key Vault** with:
+Terraform creates:
+
+* AKS cluster with Azure AD RBAC
+* System node pool (autoscaling)
+* User node pool (autoscaling)
+* Azure CNI networking
+* Azure Policy enabled
+* Log Analytics integration
+* OIDC issuer for Workload Identity
+
+---
+
+## 8. Azure Key Vault Integration
+
+The platform includes **Azure Key Vault** with:
 
 * RBAC authorization enabled
-* Public access disabled
+* Public network access enabled
 * No access policies (RBAC-only model)
-* Designed for **AKS Workload Identity**
+* Designed for AKS Workload Identity integration
 
-Key Vault is created via:
+Key Vault is provisioned via:
 
 ```
 modules/key-vault
 ```
 
-It can be used with:
-
-* Secrets Store CSI Driver
-* External Secrets
-* Secure application configuration
-
-⚠️ **No secrets are stored in Terraform code or state.**
+Terraform **does not store secrets**.
 
 ---
 
-## 8. Outputs
+## 9. Outputs
 
-After successful deployment:
+After deployment:
 
 ```bash
 terraform output
@@ -215,16 +207,17 @@ terraform output
 Available outputs include:
 
 * AKS cluster name
-* Resource group name
-* Kubeconfig (**sensitive**)
+* AKS resource group
+* Kubeconfig (sensitive)
 * ACR login server
-* Key Vault ID & name
+* Key Vault ID and name
+* Log Analytics workspace ID
 * VNet and subnet IDs
 * OIDC issuer URL
 
 ---
 
-## 9. Accessing the AKS Cluster
+## 10. Accessing the AKS Cluster
 
 ```bash
 az aks get-credentials \
@@ -232,7 +225,7 @@ az aks get-credentials \
   --name aks-dev
 ```
 
-Verify access:
+Verify:
 
 ```bash
 kubectl get nodes
@@ -240,24 +233,22 @@ kubectl get nodes
 
 ---
 
-## 10. Security & Production Controls
+## 11. Security & Best Practices
 
-* Private AKS API server
-* Azure AD (Entra ID) RBAC
-* Managed identities everywhere
-* ACR pull via role assignment
-* Separate system & user node pools
+* Azure AD RBAC enabled
+* Managed identities used throughout
+* ACR pull access via role assignment
+* Separate system and user node pools
 * Autoscaling enabled
-* Centralized logging (Log Analytics)
-* Centralized secrets (Key Vault)
-* OIDC Workload Identity enabled
+* Centralized logging
+* Centralized secret management (Key Vault)
 * No credentials committed to Git
 
 ---
 
-## 11. Cleanup (Optional)
+## 12. Cleanup
 
-Destroy environment resources:
+Destroy an environment:
 
 ```bash
 cd environments/dev
@@ -268,6 +259,3 @@ terraform destroy
 cd environments/prod
 terraform destroy
 ```
-
-⚠️ **Do NOT destroy `bootstrap` unless backend is no longer required.**
-
