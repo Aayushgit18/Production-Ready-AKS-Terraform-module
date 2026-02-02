@@ -58,6 +58,17 @@ output "user_subnet_id" {
   value       = module.network.user_subnet_id
 }
 
+# Key Vault Outputs
+
+output "key_vault_id" {
+  description = "Key Vault resource ID"
+  value       = module.key_vault.id
+}
+
+output "key_vault_name" {
+  description = "Key Vault name"
+  value       = module.key_vault.name
+}
 
 
 

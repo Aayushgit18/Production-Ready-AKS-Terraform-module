@@ -10,14 +10,14 @@ module "rg" {
 }
 
 module "network" {
-  source             = "../../modules/network"
-  rg_name            = module.rg.name
-  location           = var.location
-  vnet_name          = var.vnet_name
-  address_space      = var.vnet_cidr
-  system_subnet_cidr = var.system_subnet_cidr
-  user_subnet_cidr   = var.user_subnet_cidr
-  tags               = var.tags
+  source                    = "../../modules/network"
+  rg_name                   = module.rg.name
+  location                  = var.location
+  vnet_name                 = var.vnet_name
+  address_space             = var.vnet_cidr
+  system_subnet_cidr        = var.system_subnet_cidr
+  user_subnet_cidr          = var.user_subnet_cidr
+  tags                      = var.tags
 }
 
 module "monitoring" {
@@ -27,26 +27,21 @@ module "monitoring" {
 }
 
 module "acr" {
-  source   = "../../modules/acr"
-  rg_name  = module.rg.name
-  location = var.location
-  name     = var.acr_name
-  tags     = var.tags
-  subnet_id = module.network.system_subnet_id
-  vnet_id   = module.network.vnet_id
+  source    = "../../modules/acr"
+  rg_name   = module.rg.name
+  location  = var.location
+  name      = var.acr_name
+  tags      = var.tags
 }
 
 module "aks" {
-  source           = "../../modules/aks"
-  rg_name          = module.rg.name
-  location         = var.location
-  name             = var.aks_name
-  system_subnet_id = module.network.system_subnet_id
-  user_subnet_id   = module.network.user_subnet_id
-  law_id           = module.monitoring.law_id
-  acr_id           = module.acr.acr_id
-  tags             = var.tags
-  private_dns_zone_id = module.network.aks_private_dns_zone_id
+  source              = "../../modules/aks"
+  rg_name             = module.rg.name
+  location            = var.location
+  name                = var.aks_name
+  law_id              = module.monitoring.law_id
+  acr_id              = module.acr.acr_id
+  tags                = var.tags
 }
 
 module "key_vault" {
@@ -56,6 +51,4 @@ module "key_vault" {
   rg_name   = module.rg.name
   tenant_id = var.tenant_id
   tags      = var.tags
-  subnet_id = module.network.system_subnet_id
-  vnet_id = module.network.vnet_id
 }

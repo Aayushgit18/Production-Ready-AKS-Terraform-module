@@ -1,19 +1,23 @@
+resource "azurerm_user_assigned_identity" "aks" {
+  name                = "${var.name}-uami"
+  location            = var.location
+  resource_group_name = var.rg_name
+}
+
 resource "azurerm_kubernetes_cluster" "this" {
   name                = var.name
   location            = var.location
   resource_group_name = var.rg_name
   dns_prefix          = var.name
 
-  private_cluster_enabled = true
-
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
   automatic_channel_upgrade = "stable"
-
-  azure_policy_enabled = true
+  azure_policy_enabled      = true
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks.id]
   }
 
   role_based_access_control_enabled = true
@@ -26,17 +30,12 @@ resource "azurerm_kubernetes_cluster" "this" {
   }
 
   default_node_pool {
-    name                         = "system"
-    vm_size                      = "Standard_D2s_v3"
-    vnet_subnet_id               = var.system_subnet_id
-    enable_auto_scaling          = true
-    min_count                    = 1
-    max_count                    = 2
-    # zones                        = ["1", "2", "3"]
-    only_critical_addons_enabled = true
+    name                = "system"
+    vm_size             = "Standard_D2s_v3"
+    enable_auto_scaling = true
+    min_count           = 1
+    max_count           = 2
   }
-
-  private_dns_zone_id = var.private_dns_zone_id
 
   network_profile {
     network_plugin    = "azure"
@@ -51,12 +50,11 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
   name                  = "user"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
   vm_size               = "Standard_D2s_v3"
-  vnet_subnet_id        = var.user_subnet_id
   enable_auto_scaling   = true
   min_count             = 1
   max_count             = 2
-  # zones                 = ["1", "2", "3"]
   mode                  = "User"
+
   node_labels = {
     workload = "apps"
   }
@@ -66,5 +64,4 @@ resource "azurerm_role_assignment" "acr_pull" {
   scope                = var.acr_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_kubernetes_cluster.this.kubelet_identity[0].object_id
-  depends_on = [azurerm_kubernetes_cluster.this]
 }
